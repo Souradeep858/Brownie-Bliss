@@ -126,16 +126,34 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const u = document.getElementById('username').value;
+            const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
 
-            if (u === 'vaithi' && p === '123456') {
+            errorMsg.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    errorMsg.textContent = data.message || 'Invalid username or password';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                sessionStorage.setItem('adminToken', data.token);
                 sessionStorage.setItem('adminLoggedIn', 'true');
                 window.location.href = 'admin.html';
-            } else {
-                document.getElementById('errorMsg').style.display = 'block';
+            } catch (err) {
+                errorMsg.textContent = 'Login failed. Please try again.';
+                errorMsg.style.display = 'block';
             }
         });
     </script>

@@ -10,11 +10,12 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet">
   <script>
-    if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+    if (sessionStorage.getItem('adminLoggedIn') !== 'true' || !sessionStorage.getItem('adminToken')) {
       window.location.href = 'admin-login.html';
     }
     function logoutAdmin() {
       sessionStorage.removeItem('adminLoggedIn');
+      sessionStorage.removeItem('adminToken');
       window.location.href = 'admin-login.html';
     }
   </script>
@@ -90,7 +91,10 @@
       <!-- ORDERS TABLE -->
       <div class="orders-panel">
         <div class="panel-head">
-          <h2>All Orders</h2>
+          <div class="panel-title-group">
+            <h2>All Orders</h2>
+            <button onclick="exportCSV()" class="btn-confirm btn-export">Export CSV</button>
+          </div>
           <div class="orders-filter">
             <button class="of-btn active" onclick="filterOrders('all',this)">All</button>
             <button class="of-btn" onclick="filterOrders('pending',this)">⏳ Pending</button>
@@ -259,6 +263,18 @@
 
   <script>
     const API = '/api'; // Using relative path for better compatibility
+    const adminToken = sessionStorage.getItem('adminToken');
+    if (!adminToken) {
+      window.location.href = 'admin-login.html';
+    }
+
+    function authFetch(url, options = {}) {
+      const headers = options.headers ? { ...options.headers } : {};
+      if (!headers.Authorization) {
+        headers.Authorization = `Bearer ${adminToken}`;
+      }
+      return fetch(url, { ...options, headers });
+    }
     let allOrders = [];
     let currentFilter = 'all';
     let allProducts = [];
@@ -293,7 +309,7 @@
     // ─── LOAD STATS ────────────────────────────────────────────────────────────────
     async function loadStats() {
       try {
-        const res = await fetch(`${API}/stats`);
+        const res = await authFetch(`${API}/stats`);
         const data = await res.json();
         if (data.success) {
           const s = data.stats;
@@ -308,7 +324,7 @@
     // ─── LOAD ORDERS ───────────────────────────────────────────────────────────────
     async function loadOrders() {
       try {
-        const res = await fetch(`${API}/orders`);
+        const res = await authFetch(`${API}/orders`);
         const data = await res.json();
         if (data.success) {
           allOrders = data.orders;
@@ -388,7 +404,7 @@
       if (!confirm(`Confirm payment received for order ${orderId}?`)) return;
 
       try {
-        const res = await fetch(`${API}/orders/${orderId}/confirm-payment`, {
+        const res = await authFetch(`${API}/orders/${orderId}/confirm-payment`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ notes: 'Payment confirmed via WhatsApp' })
@@ -413,7 +429,7 @@
     // ─── UPDATE STATUS ─────────────────────────────────────────────────────────────
     async function updateStatus(orderId, status) {
       try {
-        await fetch(`${API}/orders/${orderId}/status`, {
+        await authFetch(`${API}/orders/${orderId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
@@ -429,7 +445,7 @@
     async function cancelOrder(orderId) {
       if (!confirm(`Are you sure you want to cancel order ${orderId}?`)) return;
       try {
-        const res = await fetch(`${API}/orders/${orderId}/status`, {
+        const res = await authFetch(`${API}/orders/${orderId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'cancelled' })
@@ -549,10 +565,54 @@
       win.document.close();
     }
 
+    //export csv for orders
+    async function exportCSV() {
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        if (data.success) {
+          // Just extracting the array of data
+          const ordersDataArray = data.orders.map(o => ({
+            orderId: o.order_id,
+            date: o.created_at,
+            price: o.total,
+            customer: o.customer_name,
+            phone: o.phone,
+            items: o.items,
+            status: o.status,
+            payment_status: o.payment_status
+          }));
+          let csv = `Order ID,Date,Price,Customer,Phone,Items,Status,Payment Status\n`;
+          ordersDataArray.forEach((order) => {
+            const itemsList = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+            const itemsStr = `"${itemsList.map(i => `${i.name} x${i.qty}`).join(', ')}"`;
+            csv += `${order.orderId},${order.date},${order.price},${order.customer},${order.phone},${itemsStr},${order.status},${order.payment_status}\n`;
+          });
+
+          //create blob
+          const blob = new Blob([csv], { type: "text/csv" });
+          //create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "orders.csv";
+
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          return ordersDataArray;
+        }
+      } catch (e) {
+        console.error('Error fetching orders for export', e);
+      }
+    }
+
+
     // ─── PRODUCTS ──────────────────────────────────────────────────────────────────
     async function loadProducts() {
       try {
-        const res = await fetch(`${API}/products`);
+        const res = await authFetch(`${API}/products`);
         const data = await res.json();
         if (data.success) {
           allProducts = data.products;
@@ -635,7 +695,7 @@
       }
 
       try {
-        const res = await fetch(`${API}/products/${id}`, {
+        const res = await authFetch(`${API}/products/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -658,7 +718,7 @@
 
       try {
         console.log(`Frontend: Requesting delete for ${id}`);
-        const res = await fetch(`${API}/products/${id}`, {
+        const res = await authFetch(`${API}/products/${id}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -698,7 +758,7 @@
       }
 
       try {
-        const res = await fetch(`${API}/products`, {
+        const res = await authFetch(`${API}/products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type, name, category: type === 'birthday' ? 'cakes' : category, price, emoji, img })

@@ -1,10 +1,19 @@
 // ─── CONFIG ────────────────────────────────────────────────────────────────────
 const API_BASE = '/api';
 // Change this to your WhatsApp business number (with country code, no +)
-const BUSINESS_WHATSAPP = '918072596340';
+const BUSINESS_WHATSAPP = '919336506931';
 
 // ─── CART STATE ────────────────────────────────────────────────────────────────
-let cart = JSON.parse(localStorage.getItem('bb_cart') || '[]');
+let cart = [];
+
+try {
+  cart = JSON.parse(localStorage.getItem('bb_cart')) || [];
+} catch (error) {
+  console.error("Invalid cart data in localStorage");
+  localStorage.removeItem('bb_cart');
+  cart = [];
+}
+
 let checkoutState = { name: '', phone: '', address: '', city: '', pincode: '', verified: false, currentStep: 1 };
 
 function saveCart() { localStorage.setItem('bb_cart', JSON.stringify(cart)); }
@@ -133,12 +142,31 @@ async function sendOTP() {
   checkoutState.name = name;
   checkoutState.phone = phone;
 
-  // Bypassing OTP
-  checkoutState.verified = true;
-  showCheckoutStep(3);
-  setTimeout(() => document.getElementById('custAddr')?.focus(), 100);
+  const btn = document.querySelector('#checkStep1 button[onclick="sendOTP()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+  try {
+    const res = await fetch(`${API_BASE}/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showCheckoutStep(2);
+      showToast('OTP sent! Check your phone.');
+    } else {
+      showToast(data.message || 'Failed to send OTP. Try again.');
+    }
+  } catch (e) {
+    showToast('Server error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Send OTP'; }
+  }
 }
 
+//rest original code 
 function otpNext(input, idx) {
   input.value = input.value.replace(/\D/, '');
   if (input.value && idx < 5) {
@@ -240,7 +268,7 @@ async function placeOrder() {
       updateCartBadge();
       closeCheckout();
 
-      showToast(`🎉 Order ${orderId} placed!`);
+      showToast(`🎉 Order ${orderId} placed! <a href="/track.html?id=${orderId}" class="toast-track-link">Track Order</a>`);
     } else {
       showToast('Failed to place order. Try again.');
     }
@@ -270,10 +298,10 @@ let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
   if (!t) return;
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 5000);
 }
 
 // Init

@@ -9,6 +9,15 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Theme init: sets dark class synchronously before first paint (no flash) -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('bb_theme') || 'light';
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (_) {}
+    })();
+  </script>
 </head>
 
 <body id="home">
@@ -20,17 +29,22 @@
   <!-- HEADER -->
   <header>
     <div class="header-inner">
-      <a href="index.html" class="logo" style="text-decoration: none;">
+      <a href="index.html" class="logo">
         <span class="logo-name">Brownie Bliss</span>
         <span class="logo-sub">Homemade Treats</span>
       </a>
       <nav>
-        <a href="#home">Home</a>
-        <a href="#products">Products</a>
-        <a href="#birthday">Birthday Cakes</a>
-        <a href="#contact">Contact</a>
+        <a href="index.html#home">Home</a>
+        <a href="index.html#products">Products</a>
+        <a href="index.html#birthday">Birthday Cakes</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="track.html">Track Order</a>
       </nav>
       <div class="header-actions">
+        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()"
+          aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span id="themeIcon">🌙</span>
+        </button>
         <button class="cart-btn" onclick="openCart()">
           🛒 Cart
           <span class="cart-count" id="cartBadge">0</span>
@@ -122,7 +136,6 @@
         <button class="filter-tab" onclick="filterProducts('cakes', this)">Cakes</button>
         <button class="filter-tab" onclick="filterProducts('brownies', this)">Brownies</button>
         <button class="filter-tab" onclick="filterProducts('desserts', this)">Desserts</button>
-        <button class="filter-tab" onclick="filterProducts('pastries', this)">Pastries</button>
         <button class="filter-tab" onclick="filterProducts('cookies', this)">Cookies</button>
       </div>
 
@@ -156,13 +169,30 @@
             style="display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 700;">Select
             Flavor</label>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-            <button class="filter-tab active" onclick="updateBirthdayCake('Red Velvet')">Red Velvet</button>
-            <button class="filter-tab" onclick="updateBirthdayCake('Dutch Truffle')">Dutch Truffle</button>
-            <button class="filter-tab" onclick="updateBirthdayCake('Pineapple')">Pineapple</button>
-            <button class="filter-tab" onclick="updateBirthdayCake('Chocoholic')">Chocoholic</button>
-            <button class="filter-tab" onclick="updateBirthdayCake('Black Forest')">Black Forest</button>
-            <button class="filter-tab" onclick="updateBirthdayCake('Cheesecake')">Cheesecake</button>
-          </div>
+  <button class="filter-tab flavor-btn active" onclick="updateBirthdayCake('Red Velvet')">
+    Red Velvet
+  </button>
+
+  <button class="filter-tab flavor-btn" onclick="updateBirthdayCake('Dutch Truffle')">
+    Dutch Truffle
+  </button>
+
+  <button class="filter-tab flavor-btn" onclick="updateBirthdayCake('Pineapple')">
+    Pineapple
+  </button>
+
+  <button class="filter-tab flavor-btn" onclick="updateBirthdayCake('Chocoholic')">
+    Chocoholic
+  </button>
+
+  <button class="filter-tab flavor-btn" onclick="updateBirthdayCake('Black Forest')">
+    Black Forest
+  </button>
+
+  <button class="filter-tab flavor-btn" onclick="updateBirthdayCake('Cheesecake')">
+    Cheesecake
+  </button>
+</div>
         </div>
 
         <div style="margin-bottom: 30px;">
@@ -220,6 +250,7 @@
           <a href="#home">Home</a>
           <a href="#products">Our Products</a>
           <a href="#birthday">Birthday Cakes</a>
+          <a href="track.html">Track Order</a>
           <a href="#contact">Contact Us</a>
         </div>
         <div class="footer-col" style="display: none;">
