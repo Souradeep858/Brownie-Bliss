@@ -3729,7 +3729,25 @@ footer {
     text-align: center;
   }
 
-  .hero-text {
+   .hero-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-favourite-btn {
+    margin: 14px 0 0;
+  }
+
+  .hero-visual {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .admin-body {
+    margin: 20px auto;
+  }
+}
 
 /* Admin Panel Additions */
 .panel-title-group {
@@ -4243,6 +4261,7 @@ html.dark .theme-toggle-btn:hover    { background: var(--gold); }
 
 /* =========================
    CONTACT PAGE PREMIUM
+========================= */
 
 .contact-page {
   position: relative;
