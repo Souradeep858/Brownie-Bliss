@@ -10,6 +10,16 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <script>
+  (function () {
+    try {
+      var t = localStorage.getItem('bb_theme') || 'light';
+      if (t === 'dark') document.documentElement.classList.add('dark');
+    } catch (_) {}
+  })();
+</script>
+
 </head>
 
 <body>
