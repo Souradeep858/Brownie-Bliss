@@ -198,28 +198,59 @@
         We'd love to hear from you.
       </p>
 
-      <form>
+      <form id="contactForm" class="contact-form">
 
-        <input
-          type="text"
-          placeholder="Your Name"
-          required
-        >
+        <div class="form-group">
+          <input
+            id="contactName"
+            type="text"
+            placeholder="Your Name"
+            required
+            class="form-input"
+          >
+          <span class="error-message" id="nameError"></span>
+        </div>
 
-        <input
-          type="email"
-          placeholder="Your Email"
-          required
-        >
+        <div class="form-group">
+          <input
+            id="contactEmail"
+            type="email"
+            placeholder="Your Email"
+            required
+            class="form-input"
+          >
+          <span class="error-message" id="emailError"></span>
+        </div>
 
-        <textarea
-          placeholder="Tell us about your order..."
-          required
-        ></textarea>
+        <div class="form-group">
+          <input
+            id="contactPhone"
+            type="tel"
+            placeholder="Your Phone (10 digits)"
+            required
+            class="form-input"
+          >
+          <span class="error-message" id="phoneError"></span>
+        </div>
 
-        <button type="submit" class="hero-cta">
+        <div class="form-group">
+          <textarea
+            id="contactMessage"
+            placeholder="Tell us about your order..."
+            required
+            class="form-input"
+          ></textarea>
+          <span class="error-message" id="messageError"></span>
+        </div>
+
+        <button type="submit" class="hero-cta" id="submitBtn">
           Send Message →
         </button>
+
+        <div class="success-message" id="successMessage">
+          <span class="success-icon">✓</span>
+          <span>Message sent successfully! We'll get back to you soon.</span>
+        </div>
 
       </form>
 

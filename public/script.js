@@ -913,6 +913,241 @@ document.querySelectorAll('.mobile-menu a').forEach(link => {
 });
 
 // ============================================================
+// CONTACT FORM VALIDATION
+// ============================================================
+
+const FormValidation = {
+    email: (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    },
+    phone: (phone) => {
+        const phoneRegex = /^[0-9]{10}$/;
+        return phoneRegex.test(phone.replace(/\D/g, ''));
+    },
+    name: (name) => {
+        // Must be at least 2 characters and contain at least one letter
+        const hasLetters = /[a-zA-Z]/.test(name);
+        return name.trim().length >= 2 && hasLetters;
+    },
+    message: (message) => {
+        return message.trim().length >= 10;
+    }
+};
+
+function showError(fieldId, errorId, message) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(errorId);
+    if (field && error) {
+        field.classList.add('invalid');
+        field.classList.remove('valid');
+        error.textContent = message;
+        error.classList.add('show');
+    }
+}
+
+function clearError(fieldId, errorId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(errorId);
+    if (field && error) {
+        field.classList.remove('invalid');
+        error.classList.remove('show');
+        error.textContent = '';
+    }
+}
+
+function markValid(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.add('valid');
+        field.classList.remove('invalid');
+    }
+}
+
+function setupFieldValidation(fieldId, errorId, validationFn, errorMsg) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    field.addEventListener('blur', () => {
+        if (field.value.trim()) {
+            if (validationFn(field.value)) {
+                markValid(fieldId);
+                clearError(fieldId, errorId);
+            } else {
+                showError(fieldId, errorId, errorMsg);
+            }
+        } else {
+            clearError(fieldId, errorId);
+        }
+    });
+
+    field.addEventListener('input', () => {
+        if (field.classList.contains('invalid')) {
+            if (field.value.trim() && validationFn(field.value)) {
+                markValid(fieldId);
+                clearError(fieldId, errorId);
+            }
+        }
+    });
+}
+
+function handleContactFormSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('contactName').value;
+    const email = document.getElementById('contactEmail').value;
+    const phone = document.getElementById('contactPhone').value;
+    const message = document.getElementById('contactMessage').value;
+    const submitBtn = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('successMessage');
+
+    let isValid = true;
+
+    if (!FormValidation.name(name)) {
+        showError('contactName', 'nameError', 'Please enter a valid name (at least 2 characters)');
+        isValid = false;
+    } else {
+        clearError('contactName', 'nameError');
+    }
+
+    if (!FormValidation.email(email)) {
+        showError('contactEmail', 'emailError', 'Please enter a valid email address');
+        isValid = false;
+    } else {
+        clearError('contactEmail', 'emailError');
+    }
+
+    if (!FormValidation.phone(phone)) {
+        showError('contactPhone', 'phoneError', 'Please enter a valid 10-digit phone number');
+        isValid = false;
+    } else {
+        clearError('contactPhone', 'phoneError');
+    }
+
+    if (!FormValidation.message(message)) {
+        showError('contactMessage', 'messageError', 'Please enter a message (at least 10 characters)');
+        isValid = false;
+    } else {
+        clearError('contactMessage', 'messageError');
+    }
+
+    if (isValid) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        setTimeout(() => {
+            successMsg.classList.add('show');
+            document.getElementById('contactForm').reset();
+            document.querySelectorAll('.form-input').forEach(el => {
+                el.classList.remove('valid', 'invalid');
+            });
+
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message →';
+            }, 4000);
+
+            showToast('✓ Message sent successfully! We\'ll get back to you soon.');
+        }, 1000);
+    }
+}
+
+function initializeContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    if (!contactForm) return;
+
+    setupFieldValidation('contactName', 'nameError', FormValidation.name, 'Please enter a valid name');
+    setupFieldValidation('contactEmail', 'emailError', FormValidation.email, 'Please enter a valid email');
+    setupFieldValidation('contactPhone', 'phoneError', FormValidation.phone, 'Please enter a valid 10-digit phone');
+    setupFieldValidation('contactMessage', 'messageError', FormValidation.message, 'Please enter at least 10 characters');
+
+    contactForm.addEventListener('submit', handleContactFormSubmit);
+}
+
+// FEEDBACK FORM VALIDATION
+function handleReviewFormSubmit(e) {
+    e.preventDefault();
+    const form = document.getElementById('reviewForm');
+    const nameField = document.getElementById('reviewName');
+    const messageField = document.getElementById('reviewMessage');
+    
+    // Validate all fields
+    const isNameValid = FormValidation.name(nameField.value);
+    const isMessageValid = FormValidation.message(messageField.value);
+    
+    if (!isNameValid) {
+        showError('reviewName', 'reviewNameError', 'Please enter a valid name');
+        return;
+    }
+    
+    if (!isMessageValid) {
+        showError('reviewMessage', 'reviewMessageError', 'Please enter at least 10 characters');
+        return;
+    }
+    
+    // Success state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        showToast('Thank you for your feedback! ⭐');
+        form.reset();
+        nameField.classList.remove('valid', 'invalid');
+        messageField.classList.remove('valid', 'invalid');
+        submitBtn.textContent = 'Submit Review';
+        submitBtn.disabled = false;
+    }, 1000);
+}
+
+function handleComplaintFormSubmit(e) {
+    e.preventDefault();
+    const form = document.getElementById('complaintForm');
+    const descriptionField = document.getElementById('complaintDescription');
+    
+    // Validate description
+    const isDescriptionValid = FormValidation.message(descriptionField.value);
+    
+    if (!isDescriptionValid) {
+        showError('complaintDescription', 'complaintDescriptionError', 'Please enter at least 10 characters');
+        return;
+    }
+    
+    // Success state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        showToast('Complaint received. We will look into it. 🛠️');
+        form.reset();
+        descriptionField.classList.remove('valid', 'invalid');
+        submitBtn.textContent = 'Submit Complaint';
+        submitBtn.disabled = false;
+    }, 1000);
+}
+
+function initializeReviewForm() {
+    const reviewForm = document.getElementById('reviewForm');
+    if (!reviewForm) return;
+    
+    setupFieldValidation('reviewName', 'reviewNameError', FormValidation.name, 'Please enter a valid name');
+    setupFieldValidation('reviewMessage', 'reviewMessageError', FormValidation.message, 'Please enter at least 10 characters');
+    
+    reviewForm.addEventListener('submit', handleReviewFormSubmit);
+}
+
+function initializeComplaintForm() {
+    const complaintForm = document.getElementById('complaintForm');
+    if (!complaintForm) return;
+    
+    setupFieldValidation('complaintDescription', 'complaintDescriptionError', FormValidation.message, 'Please enter at least 10 characters');
+    
+    complaintForm.addEventListener('submit', handleComplaintFormSubmit);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -930,4 +1165,9 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = idParam;
         trackOrder(idParam);
     }
+
+    // Initialize Contact Form Validation
+    initializeContactForm();
+    initializeReviewForm();
+    initializeComplaintForm();
 });

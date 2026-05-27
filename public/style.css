@@ -10171,3 +10171,132 @@ html.dark .toast {
   color: var(--text-dark) !important;
   border: 1px solid #3a2010 !important;
 }
+
+/* ============================================================
+   CONTACT FORM VALIDATION & USER FEEDBACK
+   ============================================================ */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-input {
+  padding: 12px 14px;
+  border: 2px solid var(--cream-dark);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Focus State - Visual Indicator */
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(74, 44, 10, 0.1);
+}
+
+/* Valid State - Green Border */
+.form-input.valid {
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+/* Invalid State - Red Border */
+.form-input.invalid {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+/* Error Message */
+.error-message {
+  font-size: 12px;
+  color: #e74c3c;
+  display: none;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+.error-message.show {
+  display: block;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success Message */
+.success-message {
+  display: none;
+  padding: 14px 16px;
+  background: #27ae60;
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  animation: slideUp 0.4s ease;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-message.show {
+  display: flex;
+  justify-content: center;
+}
+
+.success-icon {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Submit Button States */
+#submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Dark Mode */
+html.dark .form-input {
+  background: var(--cream-dark);
+  border-color: #3a2010;
+  color: var(--text-dark);
+}
+
+html.dark .form-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+html.dark .form-input.valid {
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+}
+
+html.dark .form-input.invalid {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+}

@@ -521,7 +521,7 @@
         <!-- Feedback Area -->
         <div style="background: var(--white); padding: 40px; border-radius: 4px; box-shadow: var(--shadow); border-left: 5px solid var(--gold);">
           <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px; color: var(--brown-dark);">Leave a Review</h3>
-          <form onsubmit="event.preventDefault(); showToast('Thank you for your feedback! ⭐'); this.reset();">
+          <form id="reviewForm">
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; text-transform: uppercase;">Rating</label>
               <div style="display: flex; gap: 5px; font-size: 24px; color: var(--gold); cursor: pointer;">
@@ -530,13 +530,15 @@
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; text-transform: uppercase;">Name</label>
-              <input type="text" placeholder="Your Name" required
-                style="width: 100%; padding: 12px; border: 1px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif;">
+              <input type="text" id="reviewName" class="form-input" placeholder="Your Name" required
+                style="width: 100%; padding: 12px; border: 2px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif; border-radius: 4px; transition: all 0.3s;">
+              <span class="error-message" id="reviewNameError" style="font-size: 12px; color: #e74c3c; margin-top: 4px;"></span>
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; text-transform: uppercase;">Message</label>
-              <textarea placeholder="Tell us about your experience..." rows="4" required
-                style="width: 100%; padding: 12px; border: 1px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif; resize: none;"></textarea>
+              <textarea id="reviewMessage" class="form-input" placeholder="Tell us about your experience..." rows="4" required
+                style="width: 100%; padding: 12px; border: 2px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif; resize: none; border-radius: 4px; transition: all 0.3s;"></textarea>
+              <span class="error-message" id="reviewMessageError" style="font-size: 12px; color: #e74c3c; margin-top: 4px;"></span>
             </div>
             <button class="hero-cta" type="submit" style="width: 100%; padding: 16px;">Submit Review</button>
           </form>
@@ -545,7 +547,7 @@
         <!-- Complaint Area -->
         <div style="background: var(--white); padding: 40px; border-radius: 4px; box-shadow: var(--shadow); border-left: 5px solid var(--brown-dark);">
           <h3 style="font-family: 'Playfair Display', serif; margin-bottom: 20px; color: var(--brown-dark);">Report an Issue</h3>
-          <form onsubmit="event.preventDefault(); showToast('Complaint received. We will look into it. 🛠️'); this.reset();">
+          <form id="complaintForm">
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; text-transform: uppercase;">Subject</label>
               <select required style="width: 100%; padding: 12px; border: 1px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif;">
@@ -563,8 +565,9 @@
             </div>
             <div style="margin-bottom: 20px;">
               <label style="display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 8px; text-transform: uppercase;">Description</label>
-              <textarea placeholder="Describe the problem in detail..." rows="4" required
-                style="width: 100%; padding: 12px; border: 1px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif; resize: none;"></textarea>
+              <textarea id="complaintDescription" class="form-input" placeholder="Describe the problem in detail..." rows="4" required
+                style="width: 100%; padding: 12px; border: 2px solid var(--cream-dark); outline: none; font-family: 'DM Sans', sans-serif; resize: none; border-radius: 4px; transition: all 0.3s;"></textarea>
+              <span class="error-message" id="complaintDescriptionError" style="font-size: 12px; color: #e74c3c; margin-top: 4px;"></span>
             </div>
             <button class="hero-cta" type="submit" style="width: 100%; padding: 16px; background: var(--brown-dark); color: var(--white);">Submit Complaint</button>
           </form>
