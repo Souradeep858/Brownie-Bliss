@@ -230,9 +230,14 @@ function renderFavouritesPage() {
           <div class="product-category">${dish.category || 'favourite'}</div>
           <div class="product-name">${dish.name}</div>
           ${dish.price ? `<div class="product-price">₹${dish.price}</div>` : ''}
-          <button class="add-to-cart" onclick='addToCart(${JSON.stringify(dish)})'>
-            Add to Cart
-          </button>
+          <div class="product-actions">
+            <button class="add-to-cart" onclick='addToCart(${JSON.stringify(dish)})'>
+              Add to Cart
+            </button>
+            <button class="copy-btn" title="Copy Product Link" aria-label="Copy Product Link" onclick='copyProductLink("${dish.name.replace(/'/g, "\\'")}", event)'>
+              🔗
+            </button>
+          </div>
         </div>
       </div>
     `
@@ -637,8 +642,8 @@ function renderRecentSearches() {
 
   container.innerHTML = `
         ${recentSearches
-          .map(
-            (search) => `
+      .map(
+        (search) => `
             <div
                 class="recent-search-tag"
                 onclick="selectSuggestion('${search.replace(/'/g, "\\'")}')"
@@ -646,8 +651,8 @@ function renderRecentSearches() {
                 ${search}
             </div>
         `
-          )
-          .join('')}
+      )
+      .join('')}
     `;
 }
 
@@ -742,12 +747,22 @@ function filterProducts(category = 'all', btn = null) {
         ₹${p.price}
       </div>
 
-      <button
-        class="add-to-cart"
-        onclick='addToCart(${JSON.stringify(p)})'
-      >
-        Add To Cart
-      </button>
+      <div class="product-actions">
+        <button
+          class="add-to-cart"
+          onclick='addToCart(${JSON.stringify(p)})'
+        >
+          Add To Cart
+        </button>
+        <button
+          class="copy-btn"
+          title="Copy Product Link"
+          aria-label="Copy Product Link"
+          onclick='copyProductLink("${p.name.replace(/'/g, "\\'")}", event)'
+        >
+          🔗
+        </button>
+      </div>
 
     </div>
 
@@ -895,7 +910,7 @@ function sendWhatsAppFinal(orderId, itemsSnap, orderTotal) {
     `💰 *Total Amount: ₹${total.toLocaleString('en-IN')}*\n\n` +
     `_Your order has been recorded. Please share payment receipt for confirmation!_ ✨`;
 
-  const waUrl = `https://wa.me/918072596340?text=${encodeURIComponent(message)}`;
+  const waUrl = `https://wa.me/918262851488?text=${encodeURIComponent(message)}`;
 
   window.open(waUrl, '_blank');
 }
@@ -1453,6 +1468,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadProducts();
   initializeLiveSearch();
+
+  // Simple check for product deep link to filter on page load
+  const productParam = urlParams.get('product');
+  if (productParam) {
+    const searchInput = document.getElementById('productSearch');
+    if (searchInput) {
+      searchInput.value = productParam;
+      currentSearchTerm = productParam;
+      filterProducts('all');
+
+      // Smooth scroll to product grid
+      const grid = document.getElementById('productsGrid');
+      if (grid) {
+        grid.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }
 });
 
 window.addEventListener('scroll', function () {
@@ -1479,9 +1511,83 @@ function toggleMenu() {
   }
 }
 
+// --- PRODUCT LINK SHARING ---
+function getProductShareLink(productName) {
+  const url = new URL(window.location.href);
+  url.hash = '';
+  let path = url.pathname;
+  if (path.endsWith('/favourites.html')) {
+    path = path.replace('/favourites.html', '/products.html');
+  } else if (path.endsWith('/index.html')) {
+    path = path.replace('/index.html', '/products.html');
+  } else if (path.endsWith('/about.html')) {
+    path = path.replace('/about.html', '/products.html');
+  } else if (path.endsWith('/contact.html')) {
+    path = path.replace('/contact.html', '/products.html');
+  } else if (path.endsWith('/track.html')) {
+    path = path.replace('/track.html', '/products.html');
+  } else if (path.endsWith('/refund-policy.html') || path.endsWith('/privacy-policy.html') || path.endsWith('/terms-of-service.html')) {
+    path = path.substring(0, path.lastIndexOf('/')) + '/products.html';
+  } else if (!path.includes('products.html')) {
+    if (path.endsWith('/')) {
+      path += 'products.html';
+    } else {
+      path = path.substring(0, path.lastIndexOf('/')) + '/products.html';
+    }
+  }
+  url.pathname = path;
+  url.search = '';
+  url.searchParams.set('product', productName);
+  return url.toString();
+}
+
+function copyProductLink(productName, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+
+  const shareLink = getProductShareLink(productName);
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareLink)
+      .then(() => {
+        showToast('Product link copied successfully! 📋');
+      })
+      .catch((err) => {
+        console.error('Failed to copy using Clipboard API:', err);
+        fallbackCopyText(shareLink);
+      });
+  } else {
+    fallbackCopyText(shareLink);
+  }
+}
+
+function fallbackCopyText(text) {
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    if (successful) {
+      showToast('Product link copied successfully! 📋');
+    } else {
+      showToast('Failed to copy link ');
+    }
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+    showToast('Failed to copy link ');
+  }
+}
+
 // --- GLOBAL BINDINGS ---
 window.openCart = openCart;
 window.closeCart = closeCart;
+window.copyProductLink = copyProductLink;
 window.addToCart = addToCart;
 window.changeQty = changeQty;
 window.removeFromCart = removeFromCart;

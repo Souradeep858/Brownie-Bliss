@@ -10919,3 +10919,52 @@ html.dark .legal-card p,
 html.dark .legal-hero p {
   color: var(--text-mid);
 }
+
+/* Product Card Copy Button Layout & Styling */
+.product-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-dark);
+  color: var(--brown-mid);
+  border: 1px solid var(--border);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: var(--gold-light);
+  color: var(--brown);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 150, 62, 0.15);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+}
+
+/* Dark mode support */
+html.dark .copy-btn {
+  background: var(--cream-mid);
+  color: var(--gold-light);
+  border-color: var(--border);
+}
+
+html.dark .copy-btn:hover {
+  background: var(--gold);
+  color: var(--brown);
+  border-color: var(--gold);
+}
