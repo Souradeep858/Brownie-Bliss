@@ -47,6 +47,8 @@ const DEFAULT_PRODUCTS = [
     category: 'cakes',
     price: 850,
     img: 'https://theobroma.in/cdn/shop/files/redvelvet-theo.jpg?v=1701321860',
+    allergens: 'Contains milk, wheat, gluten',
+    shelfLife: 'Best consumed within 3 days',
   },
   {
     id: 2,
@@ -54,6 +56,8 @@ const DEFAULT_PRODUCTS = [
     category: 'cakes',
     price: 950,
     img: 'assets/dutch_truffle.png',
+    allergens: 'Contains milk, wheat, gluten',
+    shelfLife: 'Best consumed within 3 days',
   },
   {
     id: 3,
@@ -61,6 +65,8 @@ const DEFAULT_PRODUCTS = [
     category: 'cakes',
     price: 675,
     img: 'https://theobroma.in/cdn/shop/files/FreshCreamPineappleCakehalfkg_400x400.jpg',
+    allergens: 'Contains milk, wheat, gluten',
+    shelfLife: 'Best consumed within 3 days',
   },
 ];
 
@@ -91,7 +97,10 @@ function buildCatalogFromList(list) {
             price: p.price,
             emoji: p.emoji,
             img: p.img,
-            description: p.description || ''
+            description: p.description || '',
+            allergens: p.allergens || 'Contains milk,wheat,gluten',
+            shelfLife: p.shelfLife || 'Best consumed within 3 days',
+
         }));
 
     bdayCakes = {};
@@ -280,6 +289,8 @@ function buildCatalogFromList(list) {
         emoji: p.emoji,
         img: p.img,
         description: p.description || '',
+         allergens: p.allergens || 'Contains milk,wheat,gluten',
+            shelfLife: p.shelfLife || 'Best consumed within 3 days',
       }));
 
     bdayCakes = {};
@@ -313,6 +324,9 @@ async function loadProducts() {
           img: p.img,
           stock: p.stock,
           description: p.description || '',
+            allergens: p.allergens || 'Contains milk,wheat,gluten',
+            shelfLife: p.shelfLife || 'Best consumed within 3 days',
+
         }));
 
       bdayCakes = {};
@@ -783,6 +797,12 @@ function filterProducts(category = 'all', btn = null) {
       <div class="product-desc">
         ${p.description || ''}
       </div>
+
+      <div class="product-meta">
+          <div><strong>Allergens:</strong> ${p.allergens || 'Not specified'}</div>
+          <div><strong>Shelf Life:</strong> ${p.shelfLife || 'Not specified'}</div>
+      </div>
+
 
       <div class="product-price">
         ₹${p.price}
